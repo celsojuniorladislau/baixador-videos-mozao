@@ -497,8 +497,8 @@ VIDEOS_TEMPLATE = '''
                 <div class="video-item">
                     <div class="video-name">{{ video }}</div>
                     <div class="video-actions">
-                        <a href="/download_file/{{ video }}" class="btn btn-small">⬇️ Baixar</a>
-                        <form method="POST" action="/delete/{{ video }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar este vídeo?');">
+                        <a href="/download_file/{{ video|urlencode }}" class="btn btn-small">⬇️ Baixar</a>
+                        <form method="POST" action="/delete/{{ video|urlencode }}" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja deletar este vídeo?');">
                             <button type="submit" class="btn btn-small btn-danger">🗑️ Deletar</button>
                         </form>
                     </div>
@@ -1080,7 +1080,11 @@ def download_file(filename):
 @app.route('/delete/<filename>', methods=['POST'])
 def delete_file(filename):
     try:
-        filename = secure_filename(filename)
+        # Decodificar o nome do arquivo da URL (similar ao download_file)
+        from urllib.parse import unquote
+        filename = unquote(filename)
+        
+        # Não usar secure_filename para preservar o nome original do arquivo
         filepath = os.path.join(app.config['DOWNLOAD_FOLDER'], filename)
         
         if os.path.exists(filepath) and os.path.isfile(filepath):
