@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  youtube-downloader:
+    build: .
+    container_name: youtube-downloader
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./downloads:/app/downloads
+    networks:
+      - baixador_de_videos
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.youtube-downloader.rule=Host(`video.luzanadiniz.com.br`)"
+      - "traefik.http.routers.youtube-downloader.entrypoints=websecure"
+      - "traefik.http.routers.youtube-downloader.tls.certresolver=letsencrypt"
+      - "traefik.http.services.youtube-downloader.loadbalancer.server.port=5000"
+    environment:
+      - SECRET_KEY=${SECRET_KEY:-change-this-secret-key-in-production}
+
+networks:
+  baixador_de_videos:
+    external: true
+
